@@ -39,7 +39,7 @@ resource "aws_lambda_function" "processor" {
   package_type  = "Image"
   image_uri     = var.docker_image_uri
 
-  timeout = 30
+  timeout     = 30
   memory_size = 512
 
   environment {

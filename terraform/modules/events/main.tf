@@ -17,7 +17,7 @@ resource "aws_cloudwatch_event_rule" "s3_upload" {
   description = "Trigger lambda on S3 upload"
 
   event_pattern = jsonencode({
-    source = ["aws.s3"]
+    source      = ["aws.s3"]
     detail-type = ["Object Created"]
     detail = {
       bucket = {
