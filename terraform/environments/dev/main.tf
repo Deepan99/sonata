@@ -54,12 +54,14 @@ module "api" {
   source                = "../../modules/api"
   environment           = var.environment
   lambda_invoke_arn     = module.compute.lambda_invoke_arn
+  lambda_function_name  = module.compute.lambda_function_name
   cognito_user_pool_arn = module.auth.cognito_user_pool_arn
 }
 
 module "events" {
-  source              = "../../modules/events"
-  environment         = var.environment
-  documents_bucket_id = module.storage.documents_bucket_id
-  lambda_function_arn = module.compute.lambda_function_arn
+  source               = "../../modules/events"
+  environment          = var.environment
+  documents_bucket_id  = module.storage.documents_bucket_id
+  lambda_function_arn  = module.compute.lambda_function_arn
+  lambda_function_name = module.compute.lambda_function_name
 }

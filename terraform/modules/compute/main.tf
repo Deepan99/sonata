@@ -56,3 +56,7 @@ output "lambda_function_arn" {
 output "lambda_invoke_arn" {
   value = aws_lambda_function.processor.invoke_arn
 }
+
+output "lambda_function_name" {
+  value = aws_lambda_function.processor.function_name
+}

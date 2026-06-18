@@ -10,6 +10,10 @@ variable "lambda_function_arn" {
   type = string
 }
 
+variable "lambda_function_name" {
+  type = string
+}
+
 # Example EventBridge rule for S3 bucket notifications
 # S3 must be configured to send events to EventBridge for this to work natively
 resource "aws_cloudwatch_event_rule" "s3_upload" {
@@ -36,7 +40,7 @@ resource "aws_cloudwatch_event_target" "lambda" {
 resource "aws_lambda_permission" "eventbridge" {
   statement_id  = "AllowExecutionFromEventBridge"
   action        = "lambda:InvokeFunction"
-  function_name = split(":", var.lambda_function_arn)[6]
+  function_name = var.lambda_function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.s3_upload.arn
 }

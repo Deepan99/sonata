@@ -6,6 +6,10 @@ variable "lambda_invoke_arn" {
   type = string
 }
 
+variable "lambda_function_name" {
+  type = string
+}
+
 variable "cognito_user_pool_arn" {
   type = string
 }
@@ -48,7 +52,7 @@ resource "aws_api_gateway_integration" "lambda" {
 resource "aws_lambda_permission" "apigw" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = split(":", var.lambda_invoke_arn)[6]
+  function_name = var.lambda_function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
