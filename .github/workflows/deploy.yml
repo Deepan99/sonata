@@ -1,0 +1,66 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+  AWS_REGION: us-east-1
+  TF_ROOT: terraform/environments/dev
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: sonata/${{ env.TF_ROOT }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: sonata/${{ env.TF_ROOT }}
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: sonata/${{ env.TF_ROOT }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: doc-processing-repo
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd sonata/src
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "DOCKER_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Terraform Plan
+        run: terraform plan -var="docker_image_uri=${{ env.DOCKER_IMAGE }}" -out=tfplan
+        working-directory: sonata/${{ env.TF_ROOT }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: terraform apply -auto-approve tfplan
+        working-directory: sonata/${{ env.TF_ROOT }}
