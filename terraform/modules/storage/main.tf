@@ -23,6 +23,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "documents_enc" {
   }
 }
 
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket      = aws_s3_bucket.documents.id
+  eventbridge = true
+}
+
 output "documents_bucket_arn" {
   value = aws_s3_bucket.documents.arn
 }
