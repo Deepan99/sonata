@@ -65,3 +65,8 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: terraform apply -auto-approve tfplan
         working-directory: ${{ env.TF_ROOT }}
+
+      - name: Terraform Outputs
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: terraform output
+        working-directory: ${{ env.TF_ROOT }}

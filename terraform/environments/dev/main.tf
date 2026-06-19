@@ -65,3 +65,15 @@ module "events" {
   lambda_function_arn  = module.compute.lambda_function_arn
   lambda_function_name = module.compute.lambda_function_name
 }
+
+output "api_gateway_url" {
+  value = module.api.api_gateway_url
+}
+
+output "cognito_user_pool_id" {
+  value = module.auth.cognito_user_pool_id
+}
+
+output "cognito_client_id" {
+  value = module.auth.cognito_client_id
+}
